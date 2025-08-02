@@ -1,6 +1,6 @@
 # Cross-Lingual Text Classification
 
-This project implements a multilingual text classification pipeline using HuggingFace's `transformers` library. It supports training a classifier on combined multilingual datasets and deploying it via API or UI.
+This project implements a multilingual text classification pipeline using HuggingFace's `transformers` library. It supports training a classifier on combined multilingual datasets and deploying it via FastAPI.
 
 ---
 
@@ -11,7 +11,6 @@ This project implements a multilingual text classification pipeline using Huggin
 ├── data/                   # Raw & preprocessed datasets
 ├── saved_model/           # Trained model directory
 ├── app.py                 # FastAPI backend for prediction
-├── gradio_ui.py           # Gradio interface (optional)
 ├── train.py               # Script to train the model
 ├── requirements.txt       # Python dependencies
 └── README.md              # Project documentation
@@ -40,15 +39,18 @@ This project implements a multilingual text classification pipeline using Huggin
 3. **Training Configuration**:
 ```python
 TrainingArguments(
-    per_device_train_batch_size=8,
-    per_device_eval_batch_size=8,
-    num_train_epochs=2,
-    learning_rate=2e-5,
-    save_strategy="epoch",
-    evaluation_strategy="epoch",
+    output_dir="./results",
+    eval_strategy="yes",                
+    save_strategy="no",                     
+    learning_rate=3e-5,                     
+    per_device_train_batch_size=32,         
+    num_train_epochs=3,                    
+    weight_decay=0.01,
+    logging_steps=50,                      
     logging_dir="./logs",
-    load_best_model_at_end=True,
-    metric_for_best_model="accuracy"
+    report_to="wandb",                     
+    disable_tqdm=False,                    
+    save_total_limit=1                     
 )
 ```
 
@@ -60,12 +62,6 @@ TrainingArguments(
 
 ```bash
 uvicorn app:app --reload
-```
-
-### Option 2: Gradio UI
-
-```bash
-python gradio_ui.py
 ```
 
 ---
@@ -97,7 +93,13 @@ POST /predict
 
 ## 📊 Metrics & Results
 
-To be filled in based on your test run — accuracy, F1, confusion matrix on unseen (German) data.
+| Label            | Precision | Recall | F1-Score | Support |
+| ---------------- | --------- | ------ | -------- | ------- |
+| **Ham**          | 1.00      | 0.99   | 1.00     | 4825    |
+| **Spam**         | 0.96      | 0.98   | 0.97     | 747     |
+| **Accuracy**     | –         | –      | **0.99** | 5572    |
+| **Macro Avg**    | 0.98      | 0.99   | 0.98     | 5572    |
+| **Weighted Avg** | 0.99      | 0.99   | 0.99     | 5572    |
 
 ---
 
